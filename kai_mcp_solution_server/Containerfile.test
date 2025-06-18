@@ -1,0 +1,9 @@
+FROM registry.access.redhat.com/ubi9/ubi
+
+WORKDIR /app
+RUN mkdir -p /data/
+ENV DB_PATH=/data/kai_solutions.db
+
+RUN dnf --refresh -y update \
+ && dnf -y install python3.12-devel gcc python3.12-pip libpq-devel \
+ && dnf -y clean all

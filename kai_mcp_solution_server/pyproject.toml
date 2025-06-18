@@ -23,6 +23,11 @@ dependencies = [
 ]
 
 # https://docs.astral.sh/uv/configuration/build-backend/#modules
+#[build-system]
+#requires = ["uv_build>=0.1.10,<0.8.0"]
+#build-backend = "uv_build"
+
 [build-system]
-requires = ["uv_build>=0.1.10,<0.8.0"]
-build-backend = "uv_build"
+requires = ["setuptools >= 64", "setuptools-scm>=8"]
+build-backend = "setuptools.build_meta"
+
