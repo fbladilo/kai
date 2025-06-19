@@ -1,26 +1,14 @@
-FROM registry.access.redhat.com/ubi9/ubi:latest
+FROM registry.access.redhat.com/ubi9/ubi
 
 WORKDIR /app
 RUN mkdir -p /data/
 ENV DB_PATH=/data/kai_solutions.db
 
 RUN dnf --refresh -y update \
- && dnf -y install cargo gcc gcc-c++ python3.12-devel python3.12-pip python3.12-cryptography libpq-devel libffi-devel \
+ && dnf -y install cargo gcc gcc-c++ git libffi-devel libpq-devel python3.12-cryptography python3.12-devel python3.12-pip \
  && dnf -y clean all
 
-# Setup build env
 ENV MATURIN_NO_INSTALL_RUST=true
 ENV PIP_FIND_LINKS=/app/hermeto-output/deps/pip/
 ENV PIP_NO_INDEX=true
-
-# Install deps in case of generating req files
-#RUN pip3.12 install pip-tools pybuild-deps
-
-# Build requirements.txt from pyproject.toml
-#RUN pip-compile --no-annotate --output-file=requirements.txt pyproject.toml
-
-# Build requirements-build.txt from requirements.txt
-#RUN pybuild-deps compile -o requirements-build.txt requirements.txt
-
-# Install
-#RUN pip3.12 install -r requirements.txt
+ENV install "pip3.12 install --no-cache-dir ./kai_mcp_solution_server"
