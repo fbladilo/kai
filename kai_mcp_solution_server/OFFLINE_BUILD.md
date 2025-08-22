@@ -98,15 +98,15 @@ podman run --rm -ti -v $PWD:$PWD:z -w "$PWD" quay.io/konflux-ci/hermeto:workarou
 
 - FIXME: (08/22/25)
 1. nh3 and cryptography are broken, deps are present in hermeto-output/deps/cargo/ (ammonia and asn1) but are never picked up by pip during build
-2. shapely fails to build wheel because geos is not installed, there is a geos-devel EPEL and downstream it could potentially be built from scratch if no EPEL
-3. pyarrow fails to build wheel because arrow C++ libs are missing, RPMs are available from third party Apache repo, adding the pyarrow wheel file directly into deps/pip did not get picked up by pip for version 19.0.1
+2. shapely fails to build wheel because geos is not installed, there is a geos-devel RPM in EPEL (downstream could potentially use as well)
+3. pyarrow fails to build wheel because arrow C++ libs are missing, RPMs are available from a third party Apache repo, adding the pyarrow wheel file directly into deps/pip did not get picked up by pip for version 19.0.1
 ```
 pip download cryptography==45.0.4 -d /tmp/cryptography
 cp /tmp/cryptography/cryptography-45.0.4-cp311-abi3-manylinux_2_34_x86_64.whl hermeto-output/deps/pip/
 pip download nh3==0.3.0 -d /tmp/nh3
 cp /tmp/nh3/nh3-0.3.0-cp38-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl hermeto-output/deps/pip/
 ```
-Geos and Arrow C++ will be installed installed in Containerfile.test
+Geos and Arrow C++ will be installed via Containerfile.test
 
 - Create Containerfile.test
 ```
