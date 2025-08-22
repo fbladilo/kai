@@ -96,6 +96,18 @@ podman run --rm -ti -v $PWD:$PWD:z -w "$PWD" quay.io/konflux-ci/hermeto:workarou
 podman run --rm -ti -v $PWD:$PWD:z -w "$PWD" quay.io/konflux-ci/hermeto:workaround inject-files --for-output-dir /app/hermeto-output hermeto-output
 ```
 
+- FIXME:
+1. nh3 and cryptography have broken rust deps, they are cached in hermeto-output/deps/cargo/ (ammonia and asn1) but are not picked up by pip
+2. shapely fails to build wheel because geos is not installed, there is a geos-devel EPEL and it works but downstream can't use EPEL but could potentially build it
+3. pyarrow fails to build wheel because arrow C++ libs are missing, potentially they could be built as a req, RPMs are available from third party apache repo, addin the wheel directly into deps/pip did not get picked up for 19.0.1
+```
+pip download cryptography==45.0.4 -d /tmp/cryptography
+cp /tmp/cryptography/cryptography-45.0.4-cp311-abi3-manylinux_2_34_x86_64.whl /app/hermeto-output/deps/pip/
+pip download nh3==0.3.0 -d /tmp/nh3
+cp /tmp/nh3/nh3-0.3.0-cp38-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl /app/hermeto-output/deps/pip/
+```
+Geos is installed via EPEL , arrow C++ is built and installed in Containerfile.test
+
 - Create Containerfile.test
 ```
 podman build -f kai_mcp_solution_server/Containerfile.test -t kai_mcp_solution_server:offline-build kai_mcp_solution_server
@@ -117,6 +129,6 @@ popd
 ```
 
 ```
-sed -i -e '25,28d' kai_mcp_solution_server/pyproject.toml
+sed -i '/\[build-system\]/{N;N;N;d}' kai_mcp_solution_server/pyproject.toml
 pip3.12 install --no-cache-dir ./kai_mcp_solution_server
 ```

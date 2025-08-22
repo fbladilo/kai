@@ -1,11 +1,33 @@
-FROM registry.access.redhat.com/ubi9/ubi
+FROM registry.access.redhat.com/ubi9/ubi:latest as builder
+RUN dnf --refresh -y update \
+ && dnf -y install autoconf automake gcc gcc-c++ cmake git ninja-build python3.12-devel \
+ && dnf -y clean all
 
+# Arrow C++ libs for pyarrow
+WORKDIR /tmp
+RUN git clone -b apache-arrow-19.0.1 https://github.com/apache/arrow.git
+RUN cd arrow/cpp && mkdir build-release && cd build-release \
+    && cmake .. -DARROW_CSV=ON -DARROW_JSON=ON -DARROW_PYTHON=ON \
+    # Downstream needs to copy these otherwise arrow will attempt downloading
+    # cp -f /app/hermeto-output/13.0.0.tar.gz src/
+    # cp -f /app/hermeto-output/v2.0.6.tar.gz mimalloc_ep-prefix/src/
+    && make -j8 \
+    && make install DESTDIR=/tmp/arrow-devel
+RUN tar -czvf arrow-devel.tar.gz -C /tmp/arrow-devel . && rm -rf arrow-devel arrow
+
+FROM registry.access.redhat.com/ubi9/ubi:latest
 WORKDIR /app
 RUN mkdir -p /data/
 ENV DB_PATH=/data/kai_solutions.db
 
+# Unpack Arrow C++
+COPY --from=builder /tmp/arrow-devel.tar.gz .
+RUN tar -zxvf arrow-devel.tar.gz -C /
+
+# Geos-devel is needed for shapely (EPEL supplied)
+RUN dnf install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-9.noarch.rpm
 RUN dnf --refresh -y update \
- && dnf -y install autoconf automake cargo cmake gcc gcc-c++ git libffi-devel libpq-devel ninja-build python3.12-cryptography python3.12-devel python3.12-pip python3.12-numpy \
+ && dnf -y install autoconf automake cargo cmake gcc gcc-c++ geos-devel git libffi-devel libpq-devel ninja-build python3.12-cryptography python3.12-devel python3.12-pip python3.12-numpy \
  && dnf -y clean all
 
 ENV MATURIN_NO_INSTALL_RUST=true
