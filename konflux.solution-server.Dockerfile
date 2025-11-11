@@ -43,9 +43,7 @@ ENV DB_PATH=/data/kai_solutions.db
 # Use geos-devel from RH rhel-9-for-x86_64-appstream-beta-rpms, not enabling content stream because it breaks other deps
 # https://access.redhat.com/downloads/content/geos/3.13.1-1.el9/x86_64/fd431d51/package
 # https://access.redhat.com/downloads/content/geos-devel/3.13.1-1.el9/x86_64/fd431d51/package
-#RUN dnf -y install autoconf automake cargo cmake gcc gcc-c++ git libffi-devel libpq-devel ninja-build python3.12-cryptography python3.12-devel python3.12-pip python3.12-numpy tar && dnf -y clean all
-# Remove ninja-build , codeready not working in ART tooling (11/11/2025)
-RUN dnf -y install autoconf automake cargo cmake gcc gcc-c++ git libffi-devel libpq-devel python3.12-cryptography python3.12-devel python3.12-pip python3.12-numpy && dnf -y clean all
+RUN dnf -y install autoconf automake cargo cmake gcc gcc-c++ git libffi-devel libpq-devel ninja-build python3.12-cryptography python3.12-devel python3.12-pip python3.12-numpy tar && dnf -y clean all
 
 # Copy project files
 RUN mkdir kai_mcp_solution_server
