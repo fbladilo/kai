@@ -1,0 +1,2 @@
+kai_mcp_solution_server/requirements.txt merge=ours
+.github/workflows/verify-requirements-txt.yml merge=ours

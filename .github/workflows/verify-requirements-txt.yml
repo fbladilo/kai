@@ -20,21 +20,26 @@ jobs:
         with:
           version: "latest"
 
-      - name: Sync production environment
+      - name: Regenerate Hermeto-compatible requirements files
         run: |
           cd kai_mcp_solution_server/
-          uv sync --no-dev
-          uv pip freeze --exclude-editable > new-requirements.txt
+          cp requirements.txt committed-requirements.txt
+          cp requirements-build.txt committed-requirements-build.txt
+          cd ..
+          ./scripts/post-sync.sh
 
-      - name: Compare with committed requirements.txt
+      - name: Compare with committed files
         run: |
           cd kai_mcp_solution_server/
-
-          # Normalize line endings
-          sed -i 's/\r$//' requirements.txt new-requirements.txt
-
-          # Show unified diff and fail if different
-          if ! diff -u requirements.txt new-requirements.txt ; then
-            echo "::error file=requirements.txt::Committed requirements.txt is stale. Run 'uv sync --no-dev && uv pip freeze > requirements.txt' and commit the result."
-            exit 1
+          sed -i 's/\r$//' requirements.txt committed-requirements.txt
+          sed -i 's/\r$//' requirements-build.txt committed-requirements-build.txt
+          fail=0
+          if ! diff -u committed-requirements.txt requirements.txt ; then
+            echo "::error file=kai_mcp_solution_server/requirements.txt::Stale. Run './scripts/post-sync.sh' from the repo root and commit."
+            fail=1
           fi
+          if ! diff -u committed-requirements-build.txt requirements-build.txt ; then
+            echo "::error file=kai_mcp_solution_server/requirements-build.txt::Stale. Run './scripts/post-sync.sh' from the repo root and commit."
+            fail=1
+          fi
+          exit $fail
