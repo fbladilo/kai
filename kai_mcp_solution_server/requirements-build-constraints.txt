@@ -1,0 +1,11 @@
+# Build-time constraints for packages whose latest version ships only wheels on
+# PyPI. pybuild-deps fetches sdists to introspect build dependencies and errors
+# on wheel-only releases. These pins force resolution to the last sdist-bearing
+# version. Consumed by ../scripts/post-sync.sh; concatenated with requirements.txt
+# before pybuild-deps compile.
+
+# meson >=1.10 ships wheels only; 1.9.2 is the latest with an sdist on PyPI.
+# Pulled in transitively as a build dep of meson-python (a build dep of numpy).
+meson==1.9.2 \
+    --hash=sha256:1a284dc1912929098a6462401af58dc49ae3f324e94814a38a8f1020cee07cba \
+    --hash=sha256:3499b59bb23982496e01e57b4103ac2f826f9c3a3f59e507a0a832487fe55e3d
